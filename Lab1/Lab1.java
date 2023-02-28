@@ -1,26 +1,12 @@
 import java.util.Arrays;
-public class Main {
+public class Lab1 {
     public static void main(String[] args) {
-        Main app = new Main();
+        Lab1 app = new Lab1();
         app.hello();
-        Main lab1 = new Main();
+        Lab1 lab1 = new Lab1();
         lab1.compulsory();
         lab1.homework(args);
         lab1.bonus(args);
-    }
-
-    void bonus(String[] args) {
-        int n = Integer.parseInt(args[0]);
-        int[][] matrix
-                = {{0, 1, 0, 1},
-                {1, 0, 1, 0},
-                {0, 1, 0, 1},
-                {1, 0, 1, 0}};
-        matrix = multiplyMatrix(matrix, n);
-        printMatrix(matrix);
-        int vertices = 4;
-        int[] degree = {2, 2, 2, 2};
-        adjacencyMatrix(vertices, degree);
     }
 
     public static void adjacencyMatrix(int vertices, int[] degree) {
@@ -30,7 +16,7 @@ public class Main {
         for (int i = 0; i < vertices; i++) {
             if (degree[i] != 1) {
                 for (int j = 0; j < vertices; j++) {
-                    if (i != j && degree[i]>0 && degree[j]>0) {
+                    if (i != j && degree[i] > 0 && degree[j] > 0) {
                         result[i][j] = 1;
                         result[j][i] = 1;
                         degree[i]--;
@@ -49,6 +35,20 @@ public class Main {
             }
             System.out.println();
         }
+    }
+
+    void bonus(String[] args) {
+        int n = Integer.parseInt(args[0]);
+        int[][] matrix
+                = {{0, 1, 0, 1},
+                {1, 0, 1, 0},
+                {0, 1, 0, 1},
+                {1, 0, 1, 0}};
+        matrix = multiplyMatrix(matrix, n);
+        printMatrix(matrix);
+        int vertices = 4;
+        int[] degree = {2, 2, 2, 2};
+        adjacencyMatrix(vertices, degree);
     }
 
     int[][] multiplyMatrix(int[][] matrix, int power) {
@@ -167,4 +167,3 @@ public class Main {
         System.out.println("Willy-nilly, this semester I will learn " + languages[n]);
     }
 }
-
