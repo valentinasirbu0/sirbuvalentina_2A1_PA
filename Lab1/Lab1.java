@@ -1,24 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
-package lab.pkg1;
-
 import java.util.Arrays;
-
-/**
- *
- * @author Valea
- */
-public class Lab1 {
-
-    /**
-     * @param args the command line arguments
-     */
+public class Main {
     public static void main(String[] args) {
-        Lab1 app = new Lab1();
+        Main app = new Main();
         app.hello();
-        Lab1 lab1 = new Lab1();
+        Main lab1 = new Main();
         lab1.compulsory();
         lab1.homework(args);
         lab1.bonus(args);
@@ -31,14 +16,14 @@ public class Lab1 {
                 {1, 0, 1, 0},
                 {0, 1, 0, 1},
                 {1, 0, 1, 0}};
-        matrix = multiplymatrix(matrix, n);
-        printmatrix(matrix);
+        matrix = multiplyMatrix(matrix, n);
+        printMatrix(matrix);
         int vertices = 4;
         int[] degree = {2, 2, 2, 2};
-        adjacencymatrix(vertices, degree);
+        adjacencyMatrix(vertices, degree);
     }
 
-    public static void adjacencymatrix(int vertices, int[] degree) {
+    public static void adjacencyMatrix(int vertices, int[] degree) {
         int[][] result = new int[vertices][vertices];
         Arrays.sort(degree);
 
@@ -66,7 +51,7 @@ public class Lab1 {
         }
     }
 
-    int[][] multiplymatrix(int[][] matrix, int power) {
+    int[][] multiplyMatrix(int[][] matrix, int power) {
         int[][] result = new int[matrix.length][matrix.length];
         if (power == 1) {
             return matrix;
@@ -78,11 +63,11 @@ public class Lab1 {
                 for (int j = 0; j < matrix[i].length; j++) {
                     result[i][j] = 0;
                     if (power % 2 == 0) {
-                        m1 = multiplymatrix(matrix, power / 2);
-                        m2 = multiplymatrix(matrix, power / 2);
+                        m1 = multiplyMatrix(matrix, power / 2);
+                        m2 = multiplyMatrix(matrix, power / 2);
                     } else {
-                        m1 = multiplymatrix(matrix, power / 2);
-                        m2 = multiplymatrix(matrix, power / 2 + 1);
+                        m1 = multiplyMatrix(matrix, power / 2);
+                        m2 = multiplyMatrix(matrix, power / 2 + 1);
                     }
                     for (int k = 0; k < matrix.length; k++) {
                         result[i][j] += m1[i][k] * m2[k][j];
@@ -104,17 +89,17 @@ public class Lab1 {
         int[][] matrix = new int[n][n];
         if (n > 30_000) {
             long startTime = System.nanoTime();
-            matrix = creatematrix(n);
+            matrix = createMatrix(n);
             long endTime = System.nanoTime();
             long timeDifference = endTime - startTime;
             System.out.print(timeDifference);
         }
-        matrix = creatematrix(n);
-        printmatrix(matrix);
-        concatmatrix(matrix);
+        matrix = createMatrix(n);
+        printMatrix(matrix);
+        concatMatrix(matrix);
     }
 
-    void printmatrix(int[][] matrix) {
+    void printMatrix(int[][] matrix) {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
                 System.out.print(matrix[i][j] + " ");
@@ -123,7 +108,7 @@ public class Lab1 {
         }
     }
 
-    int[][] creatematrix(int n) {
+    int[][] createMatrix(int n) {
         int[][] matrix = new int[n][n];
         for (int i = 0; i < n; i++) {
             int p = 1;
@@ -140,7 +125,7 @@ public class Lab1 {
         return matrix;
     }
 
-    void concatmatrix(int[][] matrix) {
+    void concatMatrix(int[][] matrix) {
         StringBuilder[] obj = new StringBuilder[matrix.length * 2];
 
         for (int i = 0; i < matrix.length; i++) {
@@ -182,3 +167,4 @@ public class Lab1 {
         System.out.println("Willy-nilly, this semester I will learn " + languages[n]);
     }
 }
+
