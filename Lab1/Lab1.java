@@ -84,8 +84,14 @@ public class Lab1 {
     }
 
     void homework(String[] args) {
-        int n = Integer.parseInt(args[0]);
-        System.out.println(args[0]);
+        int n;
+        try {
+            n = Integer.parseInt(args[0]);
+            System.out.println(args[0] + "Valid integer");
+        } catch (NumberFormatException e) {
+            System.out.println("Wrong argument, default argument 10");
+            n = 10;
+        }
         int[][] matrix = new int[n][n];
         if (n > 30_000) {
             long startTime = System.nanoTime();
