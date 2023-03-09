@@ -1,4 +1,5 @@
 import java.util.Arrays;
+
 public class Lab1 {
     public static void main(String[] args) {
         Lab1 app = new Lab1();
@@ -38,12 +39,16 @@ public class Lab1 {
     }
 
     void bonus(String[] args) {
-        int n = Integer.parseInt(args[0]);
-        int[][] matrix
-                = {{0, 1, 0, 1},
-                {1, 0, 1, 0},
-                {0, 1, 0, 1},
-                {1, 0, 1, 0}};
+        int n = Integer.parseInt(args[1]);
+        int[][] matrix = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                matrix[i][j] = 0;
+            }
+            matrix[i][(i + 1) % n] = 1;
+        }
+        printMatrix(matrix);
+        
         matrix = multiplyMatrix(matrix, n);
         printMatrix(matrix);
         int vertices = 4;
@@ -112,6 +117,7 @@ public class Lab1 {
             }
             System.out.println();
         }
+        System.out.println("\n");
     }
 
     int[][] createMatrix(int n) {
