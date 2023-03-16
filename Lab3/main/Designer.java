@@ -22,6 +22,11 @@ public class Designer extends Person {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
     public String toString() {
         return "Designer{" +
                 "name=" + getName() +

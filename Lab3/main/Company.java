@@ -2,6 +2,7 @@ package main.java.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Company extends AbstractNode {
     private String name;
@@ -27,8 +28,11 @@ public class Company extends AbstractNode {
 
     @Override
     public boolean equals(Object obj) {
-
-        return this == obj;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof Company)) return false;
+        Company other = (Company) obj;
+        return Objects.equals(this.name, other.name);
     }
 
     public void addRelationship(Object obj, String value) {

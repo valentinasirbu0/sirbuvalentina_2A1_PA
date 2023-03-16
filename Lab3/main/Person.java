@@ -2,6 +2,7 @@ package main.java.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Person extends AbstractNode {
     private String name;
@@ -46,8 +47,11 @@ public class Person extends AbstractNode {
 
     @Override
     public boolean equals(Object obj) {
-
-        return this == obj;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof Person)) return false;
+        Person other = (Person) obj;
+        return Objects.equals(this.name, other.name);
     }
 
     @Override

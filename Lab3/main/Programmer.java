@@ -27,6 +27,11 @@ public class Programmer extends Person {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
     public String toString() {
         return "Programmer{" +
                 "name=" + getName() +
