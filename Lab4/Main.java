@@ -24,14 +24,15 @@ public class Main {
                 .forEach(System.out::println);
 
 
-        Algorithms algorithm = new Algorithms();
+        Algorithms algorithm2 = new Algorithms();
         List<Student> studentsTest = new LinkedList<>();
         Set<Project> projectsTest = new TreeSet<>();
-        problemGenerator(algorithm, studentsTest, projectsTest,(int)Math.floor(Math.random() * (1005 - 1000 + 1) + 1000));
+        problemGenerator(algorithm2, studentsTest, projectsTest,(int)Math.floor(Math.random() * (1005 - 1000 + 1) + 1000));
 
 
-        algorithm.setStudents(students);
-        algorithm.setProjects(projects);
+        Algorithms algorithm1 = new Algorithms();
+        algorithm1.setStudents(students);
+        algorithm1.setProjects(projects);
 
         GreedyMatching matching = new GreedyMatching();
         matching.solve();
@@ -63,7 +64,7 @@ public class Main {
         algorithm.setStudents(studentsTest);
         algorithm.setProjects(projectsTest);
         System.out.println("Statistics for 1000 vertices:");
-        algorithm.testAlgorithms(range);
+        Statistics.testAlgorithms(range);
     }
 
 
