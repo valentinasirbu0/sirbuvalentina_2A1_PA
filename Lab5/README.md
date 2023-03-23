@@ -1,0 +1,1 @@
+compulsory(nu ati reusit sa verificati la laborator)
