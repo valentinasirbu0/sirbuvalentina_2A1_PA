@@ -8,7 +8,8 @@ public class Catalog implements Serializable {
     private String name;
     private List<Document> docs = new ArrayList<>();
 
-    public Catalog(){};
+    public Catalog() {
+    }
 
     public Catalog(String string) {
         this.name = string;
