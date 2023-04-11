@@ -1,15 +1,18 @@
 package org.example;
 
+
 import javax.swing.*;
 import java.awt.*;
-import java.io.Serializable;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
-public class DrawingPanel extends JPanel implements Serializable {
+public class DrawingPanel extends JPanel {
     final MainFrame frame;
     protected static DrawingPanel instance;
     protected static JLabel[] items;
+    protected static BufferedImage image; //the offscreen image
+    Graphics2D graphics; //the tools needed to draw in the image
 
     final static int W = 800, H = 600;
     protected static int numVertices = 6;
@@ -33,7 +36,26 @@ public class DrawingPanel extends JPanel implements Serializable {
         this.edges = new ArrayList<>();
         this.frame = frame;
         instance = this;
+        createOffscreenImage();
         initPanel();
+        createBoard();
+    }
+
+    private void createOffscreenImage() {
+        image = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
+        graphics = image.createGraphics();
+        graphics.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, 800, 600);
+    }
+
+    private void createBoard() {
+        createOffscreenImage();
+        drawVertices();
+        drawEdges();
+        JGraphTAlgorithm alg = new JGraphTAlgorithm();
+        repaint();
     }
 
     private void initPanel() {
@@ -42,41 +64,46 @@ public class DrawingPanel extends JPanel implements Serializable {
     }
 
     public static void refresh() {
+        instance.clearBuffer();
         instance.clearPanel();
+        instance.createBoard();
         instance.repaint();
     }
 
+    public void clearBuffer() {
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, W, H);
+    }
+
     public void clearPanel() {
-        Graphics g = getGraphics();
-        g.setColor(getBackground());
-        for (JLabel label : items) {
-            remove(label);
-        }
-        g.fillRect(0, 0, W, H);
+        removeAll();
+        repaint();
+        nodes.clear();
+        edges.clear();
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        drawVertices(g);
-        drawEdges(g);
+    protected void paintComponent(Graphics graphics) {
+        graphics.drawImage(image, 0, 0, this);
     }
 
-    private void drawVertices(Graphics g) {
+
+    private void drawVertices() {
         for (int i = 0; i < numVertices; i++) {
             Color randomColor = new Color(random.nextInt(175) + 80, random.nextInt(175) + 80, random.nextInt(175) + 80);
-            g.setColor(randomColor);
+            graphics.setColor(randomColor);
             double angle = 2 * Math.PI * i / numVertices;
             int x = (int) (centerX + radius * Math.cos(angle));
             int y = (int) (centerY + radius * Math.sin(angle));
-            g.fillOval(x - vertexDimension / 2, y - vertexDimension / 2, vertexDimension, vertexDimension);
+            graphics.fillOval(x - vertexDimension / 2, y - vertexDimension / 2, vertexDimension, vertexDimension);
             Map.Entry<Integer, Integer> entry = new AbstractMap.SimpleEntry<>(x, y);
             nodes.put(i, entry);
         }
     }
 
-    private void drawEdges(Graphics g) {
-        items = new JLabel[numEdges];
+
+    private void drawEdges() {
+        this.items = new JLabel[numEdges];
         int i = 0;
         while (i < numEdges) {
             int vertex1 = (int) (Math.random() * numVertices);
@@ -92,10 +119,10 @@ public class DrawingPanel extends JPanel implements Serializable {
                 int x2 = getXCoord(vertex2);
                 int y2 = getYCoord(vertex2);
 
-                g.setColor(Color.BLACK);
-                g.drawLine(x1, y1, x2, y2);
+                graphics.setColor(Color.BLACK);
+                graphics.drawLine(x1, y1, x2, y2);
 
-                final JLabel label = new JLabel();
+                JLabel label = new JLabel();
                 items[i] = label;
                 items[i].setBounds((x1 + x2) / 2 - 5, (y1 + y2) / 2 - 5, 10, 10);
                 items[i].addMouseListener(new MyMouseListener(items[i]));

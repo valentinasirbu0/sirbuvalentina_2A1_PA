@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.DrawingPanel;
+import org.example.MainFrame;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;

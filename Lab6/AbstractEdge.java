@@ -6,15 +6,21 @@ public class AbstractEdge {
     private int index;
     private int leftNode;
     private int rightNode;
-    private Boolean color;
+    private int color;
     JLabel label;
 
     public AbstractEdge() {
         this.leftNode = -1;
         this.rightNode = -1;
         this.label = null;
-        this.color = null;
+        this.color = -1;
         this.index = -1;
+    }
+
+    public AbstractEdge(int index, int left, int right) {
+        this.index = index;
+        this.leftNode = left;
+        this.rightNode = right;
     }
 
     public int getIndex() {
@@ -25,11 +31,11 @@ public class AbstractEdge {
         this.index = index;
     }
 
-    public Boolean getColor() {
+    public int getColor() {
         return color;
     }
 
-    public void setColor(Boolean color) {
+    public void setColor(int color) {
         this.color = color;
     }
 

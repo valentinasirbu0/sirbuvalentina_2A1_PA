@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.DrawingPanel;
+import org.example.MainFrame;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -38,22 +41,10 @@ public class ControlPanel extends JPanel {
     }
 
     private void saveGraph(ActionEvent e) {
-        try (FileOutputStream fileOut = new FileOutputStream("output.ser");
-             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
-
-            objectOut.writeObject(instance);
-
-        } catch (IOException ev) {
-            JOptionPane.showMessageDialog(null, "Error saving file: " + ev.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            ev.printStackTrace();
-        }
-
-        // Export an image of the DrawingPanel
         BufferedImage image = new BufferedImage(instance.getWidth(), instance.getHeight(), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = image.createGraphics();
-        instance.paint(g2d);
-        g2d.dispose();
+        Graphics g = image.getGraphics();
+        instance.paint(g);
+        g.dispose();
 
         try {
             ImageIO.write(image, "png", new File("output.png"));
@@ -62,28 +53,19 @@ public class ControlPanel extends JPanel {
                     JOptionPane.ERROR_MESSAGE);
             ev.printStackTrace();
         }
-
-        System.out.println("DrawingPanel saved to output.ser and output.png");
+        System.out.println("Game saved to output.png");
     }
 
     private void loadGraph(ActionEvent e) {
-        DrawingPanel panel = null;
-        try (FileInputStream fileIn = new FileInputStream("output.ser");
-             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-            panel = (DrawingPanel) objectIn.readObject();
-        } catch (IOException | ClassNotFoundException ev) {
-            ev.printStackTrace();
+        try {
+            DrawingPanel.image = ImageIO.read(new File("C:\\Users\\Valea\\Desktop\\java\\_6\\output.png"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
-
-        // Display the DrawingPanel in a JFrame
-        if (panel != null) {
-            JFrame frame = new JFrame();
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.add(panel);
-            frame.pack();
-            frame.setVisible(true);
-        }
+        System.out.println("Game loaded successfully");
+        repaint();
     }
+
 
     private void exitGame(ActionEvent e) {
         frame.dispose();
