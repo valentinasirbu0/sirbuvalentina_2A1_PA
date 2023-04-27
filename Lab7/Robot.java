@@ -1,57 +1,86 @@
 package org.example;
 
+
+import org.example.Exploration;
+import org.example.ExplorationMap;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Robot implements Runnable {
     private String name;
-    private boolean running = true; //by default, the robot is running
-    private int row;
-    private int col;
-    private Exploration explore;
+    private boolean running = true;
+    private int col = -1;
+    public int row;
+    private static Map<Robot, Integer> numberOfTokens = new HashMap<>();
+    Exploration explore;
 
-    public Robot(String name, Exploration explore) {
+    public Robot(String name) {
         this.name = name;
-        this.explore = explore;
+        this.explore = new Exploration();
     }
 
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    public void setPosition(int row, int col) {
-        this.row = row;
-        this.col = col;
-    }
-
-    public void setExploration(Exploration explore) {
-        this.explore = explore;
-    }
-
-    public void run() {
-        while (running && !explore.areAllCellsVisited()) {
-            int[] newPos = explore.getMap().getRandomUnvisitedCell();
-            if (newPos == null) {
-                // we visited all cells and we terminate the robot
-                running = false;
-                explore.setAllCellsVisited();
-                break;
-            }
-            int newRow = newPos[0];
-            int newCol = newPos[1];
-
-            //visit the cell
-            explore.getMap().visit(newRow, newCol, this);
-
-            //sleepy sleep
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.printf("%s terminated %n", name);
+    public static Map<Robot, Integer> getNumberOfTokens() {
+        return numberOfTokens;
     }
 
     public String getName() {
-        return this.name;
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    //se alege o linie si se parcurge de acelasi robot
+    public int algorithmExploring() {
+        for (int i = 0; i < ExplorationMap.getMatrix().length; i++) {
+            if (ExplorationMap.getMatrix()[i][0].isEmpty()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void run() {
+        row = algorithmExploring();
+        while (running) {
+//            pick a new cell to explore
+//            int row= (int) (Math.random()*(ExplorationMap.getMatrix().length));
+//            int col=(int)(Math.random()*(ExplorationMap.getMatrix()[0].length));
+            if (col + 1 == ExplorationMap.getMatrix().length) {
+                col = 0;
+                row = algorithmExploring();
+                if (row == -1) {
+                    running = false;
+                    break;
+                }
+            } else
+                col++;
+            if (!explore.getMap().visit(row, col, this)) {
+                running = false;
+            }
+            //System.out.println(this.name+" visited a new cell");
+            //            make the robot sleep for some time
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void stop() {
+        running = false;
+    }
+
+    public void sleep(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

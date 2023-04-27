@@ -1,31 +1,26 @@
 package org.example;
+
 import java.util.*;
 
 public class SharedMemory {
-    private final Queue<Token> tokens;
+    private final List<Token> listOfTokens = new LinkedList<>();
 
     public SharedMemory(int n) {
-        List<Token> allTokens = new ArrayList<>();
-        for (int i = 0; i < n * n * n; i++) {
-            allTokens.add(new Token(i));
+        for (int i = 0; i < n; i++) {
+            listOfTokens.add(new Token(i));
         }
-        Collections.shuffle(allTokens);
-        tokens = new LinkedList<>(allTokens);
+        Collections.shuffle((List<?>) listOfTokens);
     }
 
-    public synchronized List<Token> extractTokens(int nrTokens) {
+    public synchronized List<Token> extractTokens(int howMany) {
         List<Token> extracted = new ArrayList<>();
-        for (int i = 0; i < nrTokens && !tokens.isEmpty(); i++) {
-            extracted.add(tokens.poll());
+        for (int i = 0; i < howMany; i++) {
+            if (listOfTokens.isEmpty()) {
+                break;
+            }
+            Random rand = new Random();
+            extracted.add(listOfTokens.get(rand.nextInt(listOfTokens.size())));
         }
         return extracted;
     }
-
-    @Override
-    public String toString() {
-        return "SharedMemory{" +
-                "tokens=" + tokens +
-                '}';
-    }
 }
-

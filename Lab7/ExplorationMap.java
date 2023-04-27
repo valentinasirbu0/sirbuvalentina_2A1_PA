@@ -1,65 +1,63 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class ExplorationMap {
-    private final Cell[][] matrix;
-    private final SharedMemory mem;
+    private static List<Token>[][] matrix;
+    private static int sizeMatrix;
 
-    public ExplorationMap(int n, SharedMemory mem) {
-        matrix = new Cell[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                matrix[i][j] = new Cell();
+    public ExplorationMap(int size) {
+        this.sizeMatrix = size;
+        matrix = new List[sizeMatrix][sizeMatrix];
+        for (int i = 0; i < sizeMatrix; i++) {
+            for (int j = 0; j < sizeMatrix; j++) {
+                matrix[i][j] = new ArrayList<>();
             }
-        }
-        this.mem = mem;
-    }
-
-    public int[] getRandomUnvisitedCell() {
-        List<int[]> unvisitedCells = new ArrayList<>();
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[0].length; j++) {
-                if (!matrix[i][j].isVisited()) { // adding to the list all the unvisited cells
-                    unvisitedCells.add(new int[]{i, j});
-                }
-            }
-        }
-        if (!unvisitedCells.isEmpty()) {
-            int[] randomCell = unvisitedCells.get((int) (Math.random() * unvisitedCells.size()));
-            return new int[]{randomCell[0], randomCell[1]};
-        } else {
-            return null; //exploration complete
         }
     }
 
-
-    public void visit(int row, int col, Robot robot) {
-        //only one robot can visit the same cell at a time
-        //to ensure this - we use the synchronized keyword
+    public boolean visit(int row, int col, Robot robot) {
         synchronized (matrix[row][col]) {
-            if (!matrix[row][col].isVisited()) {
-                List<Token> tokens = mem.extractTokens(matrix.length);
-                matrix[row][col].addTokens(tokens);
-                matrix[row][col].setVisited(true);
-                System.out.println(robot.getName() + " visited cell [" + row + ", " + col + "]");
+            if (matrix[row][col].isEmpty() == true) {
+//                the robot extract tokens
+                List<Token> listOfTokens = robot.explore.getMem().extractTokens(7);
+                //                and store the tokens in the cell(it becomes visited)
+                matrix[row][col].addAll(listOfTokens);
+                Robot.getNumberOfTokens().put(robot, Robot.getNumberOfTokens().get(robot) + 7);
+//                System.out.println(listOfTokens);
+//                System.out.println();
+                //                display a success message
+                //System.out.println(robot.getName() + " a vizitat cell-ul: row= " + row + " col= " + col);
+            } else {
+                //System.out.println(robot.getName()+" cell deja vizitat");
+                //se alege alta linie pentru robot daca mai exista
+                if (robot.row + 1 < sizeMatrix)
+                    robot.row++;
+            }
+            return isFull();
+        }
+    }
+
+    public static List<Token>[][] getMatrix() {
+        return matrix;
+    }
+
+    public static boolean isFull() {
+        for (int i = 0; i < sizeMatrix; i++) {
+            for (int j = 0; j < sizeMatrix; j++) {
+                if (matrix[i][j].isEmpty()) return true;
             }
         }
-
-
+        return false;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                sb.append("[").append(i).append(",").append(j).append("]: ");
-                sb.append(matrix[i][j].getTokens().toString());
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
+        return "ExplorationMap{" +
+                "matrix=" + Arrays.toString(matrix) +
+                '}';
     }
 }
