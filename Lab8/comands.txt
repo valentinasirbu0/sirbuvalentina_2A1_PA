@@ -1,0 +1,31 @@
+delete from album_genre;
+delete from albums;
+delete from artists;
+delete from genres;
+
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+delete from album_genre;
+delete from albums;
+
+CREATE TABLE p11 (
+    id SERIAL,
+    album_id INTEGER PRIMARY KEY NOT NULL REFERENCES albums(id),
+    UNIQUE(id),
+    UNIQUE(album_id)
+);
+
+CREATE TABLE playlists (
+    id SERIAL,
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(id),
+    UNIQUE(name)
+);
+
+CREATE TABLE model (
+   id SERIAL PRIMARY KEY NOT NULL ,
+   file_name VARCHAR(255) NOT NULL,
+   file_data BYTEA NOT NULL
+);
