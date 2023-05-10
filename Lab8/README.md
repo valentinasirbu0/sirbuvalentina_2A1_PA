@@ -10,7 +10,7 @@ tabela pentru 2 playlist-uri implementate prin algoritmi diferiti(clustering si 
 tabela pentru fiecare album (id,file_name,file_data)  datele in fisier sunt stocate binar
 (total 24 tabele)
 
-Am utilizat un connection pool
+Am utilizat un connection pool HikariCP
 Am importat un data set propus in laborator
 Am implementat algoritmul DegeneracyBronKerboschCliqueFinder JGraphT
 Am implementat algoritmul ClusteringCoefficient
