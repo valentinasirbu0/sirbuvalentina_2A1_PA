@@ -1,8 +1,9 @@
-package org.example._9.model;
+package org.example.JPA.model;
 
 import jakarta.persistence.*;
 
 @Entity
+@NamedQuery(name = "Album.findByTitle", query = "SELECT a FROM Album a WHERE a.title LIKE :title")
 @Table(name = "albums")
 public class Album {
     @Id
@@ -17,7 +18,7 @@ public class Album {
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artist_id", nullable = false)
+    @JoinColumn(name = "artist_id", referencedColumnName = "id", nullable = false)
     private Artist artist;
 
     public Album() {}
@@ -32,31 +33,19 @@ public class Album {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Integer getYear() {
         return year;
-    }
-
-    public void setYear(Integer year) {
-        this.year = year;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public Artist getArtist() {
         return artist;
     }
 
-    public void setArtist(Artist artist) {
-        this.artist = artist;
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

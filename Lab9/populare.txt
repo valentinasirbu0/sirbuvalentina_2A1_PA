@@ -1,0 +1,32 @@
+CREATE TABLE artists (
+    id SERIAL NOT NULL,
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+	UNIQUE(id)
+);
+
+CREATE TABLE genres (
+    id SERIAL NOT NULL,
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+	UNIQUE(id)
+);
+
+CREATE TABLE albums (
+    id SERIAL NOT NULL PRIMARY KEY,
+    year INTEGER NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    artist_id INTEGER NOT NULL REFERENCES artists(id)
+);
+
+CREATE TABLE album_genre (
+    album_id INTEGER NOT NULL REFERENCES albums(id),
+    genre_id INTEGER NOT NULL REFERENCES genres(id),
+    PRIMARY KEY (album_id, genre_id)
+);
+
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+delete from album_genre;
+delete from albums;
+delete from artists;
+delete from genres;

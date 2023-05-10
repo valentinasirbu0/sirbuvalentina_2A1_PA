@@ -1,10 +1,10 @@
-package org.example._9.model;
+package org.example.JPA.model;
 
 import jakarta.persistence.*;
 
 @Entity
 @NamedQuery(name = "Artist.findByName", query = "SELECT a FROM Artist a WHERE a.name LIKE :name")
-@Table(name = "genres")
+@Table(name = "artists")
 public class Artist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,19 +20,20 @@ public class Artist {
         this.name = name;
     }
 
-    public Integer getId() {
-        return id;
+    public Artist(Integer id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public Integer getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
