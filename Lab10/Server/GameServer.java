@@ -1,15 +1,22 @@
 package org.example;
 
+import org.example.Game.Game;
+
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class GameServer {
     private final int port;
     private boolean isRunning;
+    private final ExecutorService executorService;
+    protected static Game game = null;
 
     public GameServer(int port) {
         this.port = port;
         this.isRunning = false;
+        this.executorService = Executors.newFixedThreadPool(10); // create a thread pool with 10 threads
     }
 
     public void start() {
@@ -21,17 +28,13 @@ public class GameServer {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getInetAddress().getHostAddress());
 
-                // Create a new thread to handle the client connection
-                ClientThread clientThread = new ClientThread(clientSocket);
-                clientThread.start();
+                // Submit a new task to the thread pool to handle the client connection
+                ClientTask clientTask = new ClientTask(clientSocket);
+                executorService.submit(clientTask);
             }
         } catch (Exception e) {
             System.out.println("Error starting server: " + e.getMessage());
         }
-    }
-
-    public void stop() {
-        isRunning = false;
     }
 
     public static void main(String[] args) {
@@ -40,4 +43,3 @@ public class GameServer {
         server.start();
     }
 }
-
