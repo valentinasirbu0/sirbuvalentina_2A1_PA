@@ -1,8 +1,5 @@
 package org.example.Game;
 
-import org.example.Game.Piece;
-import org.example.Game.PieceColor;
-
 import java.io.PrintWriter;
 
 public class Player {
@@ -11,7 +8,6 @@ public class Player {
     private final PrintWriter out;
     private Long time;
     private Long startTime;
-    private Long endTime;
 
     public Player(String name, PrintWriter out) {
         this.out = out;
@@ -48,7 +44,7 @@ public class Player {
     }
 
     public void countTime() {
-        endTime = System.currentTimeMillis();
+        Long endTime = System.currentTimeMillis();
         time = time - (endTime - startTime);
         System.out.println(getName() + " has " + time + "seconds");
     }

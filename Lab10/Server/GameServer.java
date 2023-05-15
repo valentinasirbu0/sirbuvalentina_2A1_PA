@@ -4,6 +4,8 @@ import org.example.Game.Game;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -12,6 +14,7 @@ public class GameServer {
     private boolean isRunning;
     private final ExecutorService executorService;
     protected static Game game = null;
+    protected static List<ClientTask> connections = new CopyOnWriteArrayList<>();
 
     public GameServer(int port) {
         this.port = port;
@@ -30,6 +33,7 @@ public class GameServer {
 
                 // Submit a new task to the thread pool to handle the client connection
                 ClientTask clientTask = new ClientTask(clientSocket);
+                connections.add(clientTask);
                 executorService.submit(clientTask);
             }
         } catch (Exception e) {

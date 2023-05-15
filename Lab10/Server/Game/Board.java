@@ -1,7 +1,7 @@
 package org.example.Game;
 
 public class Board {
-    private static Piece[][] grid;
+    public static Piece[][] grid;
     private static int numRows;
     private static int numCols;
 
