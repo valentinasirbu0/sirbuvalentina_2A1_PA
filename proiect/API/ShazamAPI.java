@@ -1,4 +1,4 @@
-package org.example;
+package org.example.API;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class ShazamAPI {
     public static void identifySong(String filePath) {
         HttpPost request = new HttpPost("https://shazam-api6.p.rapidapi.com/shazam/recognize/");
-        request.addHeader("X-RapidAPI-Key", "3d0b99adb7msh6766cd0dccf4a52p1d98d6jsnd97763195110");
+        request.addHeader("X-RapidAPI-Key", "6e81b290e9msh63821818134ad21p165652jsn4f6c703e196d");
         request.addHeader("X-RapidAPI-Host", "shazam-api6.p.rapidapi.com");
 
         // Load the MP3 file from the file path
@@ -34,7 +34,7 @@ public class ShazamAPI {
             HttpResponse response = client.execute(request);
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
-            //System.out.println(new JSONObject(responseBody));
+            System.out.println(responseBody);
             LyricsExtractor.extractLinesFromURL(new JSONObject(responseBody));
         } catch (IOException e) {
             throw new RuntimeException(e);

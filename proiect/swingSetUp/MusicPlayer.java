@@ -3,13 +3,14 @@ package org.example.swingSetUp;
 import jakarta.persistence.EntityManager;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
+import org.example.API.GoogleTranslateAPI;
+import org.example.API.LyricsExtractor;
 import org.example.JPA.JpaDAOFactory;
 import org.example.JPA.model.Album;
 import org.example.JPA.model.Song;
 import org.example.JPA.repos.AlbumRepository;
 import org.example.JPA.repos.AlbumSongRepository;
 import org.example.JPA.repos.SongRepository;
-import org.example.LyricsExtractor;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequencer;
@@ -18,18 +19,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 
-import static org.example.ShazamAPI.identifySong;
+import static org.example.API.GoogleTranslateAPI.filePath;
+import static org.example.API.GoogleTranslateAPI.parseLanguages;
+import static org.example.API.ShazamAPI.identifySong;
 
 public class MusicPlayer extends JFrame implements ActionListener {
 
     private JComboBox<String> albumComboBox;
     private JComboBox<String> midiComboBox;
+    private JComboBox<String> languageComboBox;
     private JButton playButton;
     private JButton stopButton;
     private Sequencer sequencer;
@@ -62,6 +69,9 @@ public class MusicPlayer extends JFrame implements ActionListener {
             midiComboBox = new JComboBox<>();
             albumComboBox.setPreferredSize(new Dimension(200, 25));
             midiComboBox.setPreferredSize(new Dimension(200, 25));
+            // Create the language combo box
+            languageComboBox = new JComboBox<>();
+            languageComboBox.setPreferredSize(new Dimension(200, 25));
 
             playButton = new JButton("Play");
             playButton.addActionListener(this);
@@ -69,11 +79,15 @@ public class MusicPlayer extends JFrame implements ActionListener {
             stopButton = new JButton("Stop");
             stopButton.addActionListener(this);
 
-            JPanel controlPanel = new JPanel(new GridLayout(2, 2));
+            JPanel controlPanel = new JPanel(new GridLayout(3, 2));
             controlPanel.add(new JLabel("Album:"));
             controlPanel.add(albumComboBox);
             controlPanel.add(new JLabel("MP3 File:"));
             controlPanel.add(midiComboBox);
+            controlPanel.add(new JLabel("Language:"));
+            controlPanel.add(languageComboBox);
+
+            loadLanguageOptions();
 
             lyricsTextArea = new JTextArea();
             lyricsTextArea.setEditable(false);
@@ -118,6 +132,20 @@ public class MusicPlayer extends JFrame implements ActionListener {
         }
     }
 
+    private void loadLanguageOptions() {
+        // Read the JSON file
+        String jsonContent = null;
+        try {
+            jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        List<String> languages = parseLanguages(jsonContent);
+        for (String s : languages) {
+            languageComboBox.addItem(s);
+        }
+    }
+
 
     private void loadMidiFileNames(String albumName) {
         try {
@@ -157,6 +185,7 @@ public class MusicPlayer extends JFrame implements ActionListener {
         try {
             // Load the MP3 file from the database and play it
             String albumName = (String) albumComboBox.getSelectedItem();
+            String languageName = (String) languageComboBox.getSelectedItem();
             EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
             SongRepository songRepository = new SongRepository(entityManager);
 
@@ -173,12 +202,18 @@ public class MusicPlayer extends JFrame implements ActionListener {
                 // Identify the song
                 identifySong(song.getPath());
                 String lyrics = LyricsExtractor.lyrics;
+                String translated = GoogleTranslateAPI.translate(lyrics, languageName);
 
                 Thread lyricsThread = new Thread(() -> {
                     // Display the lyrics in the lyricsTextArea
                     //System.out.println(lyrics);
                     //lyricsTextArea.setText(song.getName());
-                    lyricsTextArea.setText(lyrics);
+                    if (translated != null) {
+                        lyricsTextArea.setText(translated);
+                    } else {
+                        lyricsTextArea.setText(lyrics);
+                    }
+
                 });
                 lyricsThread.start();
 

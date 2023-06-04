@@ -1,4 +1,4 @@
-package org.example;
+package org.example.API;
 
 import org.example.JPA.DAOTests.*;
 import org.example.JPA.model.Album;
