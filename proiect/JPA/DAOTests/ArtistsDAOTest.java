@@ -7,15 +7,13 @@ import org.example.JPA.repos.ArtistRepository;
 
 import java.util.List;
 
-import static org.example.JPA.DataSets.Other.removeSpecialChars;
-
 public class ArtistsDAOTest {
     public static Artist ArtistTest(String name) {
         EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
         ArtistRepository artistRepository = new ArtistRepository(entityManager);
 
         // Create an artist
-        Artist a = new Artist(removeSpecialChars(name));
+        Artist a = new Artist(name);
         artistRepository.create(a);
         entityManager.close();
         return a;
@@ -43,5 +41,4 @@ public class ArtistsDAOTest {
         entityManager.close();
         return artist;
     }
-
 }

@@ -2,6 +2,8 @@ package org.example.JPA.model;
 
 import jakarta.persistence.*;
 
+import java.nio.file.Path;
+
 @Entity
 @NamedQuery(name = "Song.findByName", query = "SELECT a FROM Song a WHERE a.name LIKE :name")
 @NamedQuery(name = "Song.findAll", query = "SELECT a FROM Song a")
@@ -18,12 +20,24 @@ public class Song {
     @Column(name = "file_data", nullable = false, columnDefinition = "bytea")
     private byte[] fileData;
 
+    @Column(name = "path", nullable = false)
+    private String path;
+
     public Song() {
     }
 
-    public Song(String name, byte[] fileData) {
+    public Song(String outputPath, String name, byte[] fileData) {
         this.name = name;
         this.fileData = fileData;
+        this.path = outputPath;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getName() {

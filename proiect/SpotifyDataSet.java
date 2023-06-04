@@ -1,4 +1,4 @@
-package org.example.JPA.DataSets;
+package org.example;
 
 import org.example.JPA.DAOTests.*;
 import org.example.JPA.model.Album;
@@ -33,7 +33,7 @@ public class SpotifyDataSet {
         //AlbumGenreTest.AlbumGenreTest();
         //AlbumArtistTest.AlbumGenreTest();
         //getSongs();
-        AlbumSongTest.AlbumSongTest();
+        //AlbumSongTest.AlbumSongTest();
     }
 
     public void getSongs() {
@@ -68,7 +68,7 @@ public class SpotifyDataSet {
                         try (InputStream inputStream = new URL(previewUrl).openStream()) {
                             Files.copy(inputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
                             byte[] songData = Files.readAllBytes(outputPath);
-                            var song = new SongTest().SongTest(name, songData);
+                            var song = new SongTest().SongTest(name, songData, outputPath);
 
                         } catch (IOException e) {
                             e.printStackTrace();

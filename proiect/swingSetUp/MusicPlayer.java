@@ -9,6 +9,7 @@ import org.example.JPA.model.Song;
 import org.example.JPA.repos.AlbumRepository;
 import org.example.JPA.repos.AlbumSongRepository;
 import org.example.JPA.repos.SongRepository;
+import org.example.LyricsExtractor;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequencer;
@@ -23,6 +24,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 
+import static org.example.ShazamAPI.identifySong;
+
 public class MusicPlayer extends JFrame implements ActionListener {
 
     private JComboBox<String> albumComboBox;
@@ -34,6 +37,8 @@ public class MusicPlayer extends JFrame implements ActionListener {
     private Statement statement;
     private ResultSet resultSet;
     private Player player;
+    private JTextArea lyricsTextArea;
+
 
     public MusicPlayer() {
         super("Music Player");
@@ -64,16 +69,33 @@ public class MusicPlayer extends JFrame implements ActionListener {
             stopButton = new JButton("Stop");
             stopButton.addActionListener(this);
 
-            JPanel controlPanel = new JPanel(new GridLayout(1, 4));
+            JPanel controlPanel = new JPanel(new GridLayout(2, 2));
             controlPanel.add(new JLabel("Album:"));
             controlPanel.add(albumComboBox);
-            controlPanel.add(new JLabel("MIDI File:"));
+            controlPanel.add(new JLabel("MP3 File:"));
             controlPanel.add(midiComboBox);
-            controlPanel.add(playButton);
-            controlPanel.add(stopButton);
+
+            lyricsTextArea = new JTextArea();
+            lyricsTextArea.setEditable(false);
+            JScrollPane lyricsScrollPane = new JScrollPane(lyricsTextArea);
+
+            // Set the preferred size of the lyricsScrollPane
+            lyricsScrollPane.setPreferredSize(new Dimension(400, 200));
+
+            // Create a new JPanel for the lyricsScrollPane
+            JPanel lyricsPanel = new JPanel(new BorderLayout());
+            lyricsPanel.add(lyricsScrollPane, BorderLayout.CENTER);
+            lyricsPanel.add(controlPanel, BorderLayout.NORTH);
+
+            // Create a new JPanel for the buttons
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.add(playButton);
+            buttonPanel.add(stopButton);
 
             // Add components to JFrame
-            getContentPane().add(controlPanel, BorderLayout.NORTH);
+            getContentPane().add(lyricsPanel, BorderLayout.CENTER);
+            getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
             pack();
             setLocationRelativeTo(null);
 
@@ -81,7 +103,6 @@ public class MusicPlayer extends JFrame implements ActionListener {
             resultSet = statement.executeQuery("SELECT DISTINCT id, title FROM albums ORDER BY id ASC");
             while (resultSet.next()) {
                 albumComboBox.addItem(resultSet.getString("title"));
-                //System.out.println(resultSet.getString("title"));
             }
 
             // Load the MIDI file names for the first album
@@ -96,6 +117,7 @@ public class MusicPlayer extends JFrame implements ActionListener {
             e.printStackTrace();
         }
     }
+
 
     private void loadMidiFileNames(String albumName) {
         try {
@@ -145,6 +167,23 @@ public class MusicPlayer extends JFrame implements ActionListener {
 
                 // Play the MP3 data
                 byte[] mp3Data = song.getFileData();
+
+
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////
+                // Identify the song
+                identifySong(song.getPath());
+                String lyrics = LyricsExtractor.lyrics;
+
+                Thread lyricsThread = new Thread(() -> {
+                    // Display the lyrics in the lyricsTextArea
+                    //System.out.println(lyrics);
+                    //lyricsTextArea.setText(song.getName());
+                    lyricsTextArea.setText(lyrics);
+                });
+                lyricsThread.start();
+
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
                 // Create an input stream from the MP3 data
                 ByteArrayInputStream bis = new ByteArrayInputStream(mp3Data);
