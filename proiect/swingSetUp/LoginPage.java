@@ -1,5 +1,7 @@
 package org.example.swingSetUp;
 
+import org.example.JPA.DAOTests.UserTest;
+import org.example.JPA.model.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.swing.*;
@@ -7,9 +9,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class LoginPage extends JFrame implements ActionListener {
 
@@ -18,8 +17,7 @@ public class LoginPage extends JFrame implements ActionListener {
     private JButton loginButton;
     private JButton registerButton;
     private static Connection connection;
-    public static Integer userID;
-    public static char[] passwd;
+    public static User user;
 
     public LoginPage(Connection connection) {
         super("Login");
@@ -72,8 +70,7 @@ public class LoginPage extends JFrame implements ActionListener {
         String username = usernameField.getText();
         char[] password = passwordField.getPassword();
         if (isValidLogin(username, password)) {
-            this.userID = getUserIdByUsername(username);
-            this.passwd = password;
+            this.user = UserTest.findUser(username);
             openMusicPlayer();
         } else {
             JOptionPane.showMessageDialog(this, "Invalid username or password. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
@@ -83,17 +80,9 @@ public class LoginPage extends JFrame implements ActionListener {
 
 
     private boolean isValidLogin(String username, char[] password) {
-        try {
-            String sql = "SELECT passwd FROM users WHERE username = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                String hashedPassword = resultSet.getString("passwd");
-                return BCrypt.checkpw(String.valueOf(password), hashedPassword);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        String hashedPassword = UserTest.findUserPassword(username);
+        if (!hashedPassword.equals(null)) {
+            return BCrypt.checkpw(String.valueOf(password), hashedPassword);
         }
         return false;
     }
@@ -112,49 +101,18 @@ public class LoginPage extends JFrame implements ActionListener {
             return;
         }
 
-        try {
-            String checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
-            PreparedStatement checkUsernameStatement = connection.prepareStatement(checkUsernameQuery);
-            checkUsernameStatement.setString(1, username);
-            ResultSet resultSet = checkUsernameStatement.executeQuery();
-            if (resultSet.next()) {
-                JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Hash the password using bcrypt
-            String hashedPassword = BCrypt.hashpw(String.valueOf(password), BCrypt.gensalt());
-
-            String insertUserQuery = "INSERT INTO users (username, passwd) VALUES (?, ?)";
-            PreparedStatement insertUserStatement = connection.prepareStatement(insertUserQuery);
-            insertUserStatement.setString(1, username);
-            insertUserStatement.setString(2, hashedPassword);
-            insertUserStatement.executeUpdate();
-
-            JOptionPane.showMessageDialog(this, "Registration successful. You can now log in with your new account.", "Registration Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "An error occurred during registration. Please try again.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
+        if (UserTest.checkUsername(username)) {
+            JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        // Hash the password using bcrypt
+        String hashedPassword = BCrypt.hashpw(String.valueOf(password), BCrypt.gensalt());
+        var user = UserTest.UserTest(username, hashedPassword);
+        JOptionPane.showMessageDialog(this, "Registration successful. You can now log in with your new account.", "Registration Success", JOptionPane.INFORMATION_MESSAGE);
 
         usernameField.setText("");
         passwordField.setText("");
-    }
-
-    public static int getUserIdByUsername(String username) {
-        int userId = -1; // Default value if the user is not found or an error occurs
-        try {
-            String sql = "SELECT id FROM users WHERE username = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                userId = resultSet.getInt("id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return userId;
     }
 
     private void openMusicPlayer() {

@@ -5,7 +5,6 @@ import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 import org.example.API.GoogleTranslateAPI;
 import org.example.API.LyricsExtractor;
-import org.example.JPA.DAOTests.SongTest;
 import org.example.JPA.JpaDAOFactory;
 import org.example.JPA.model.Album;
 import org.example.JPA.model.Song;
@@ -26,6 +25,7 @@ import java.util.List;
 import static org.example.API.GoogleTranslateAPI.filePath;
 import static org.example.API.GoogleTranslateAPI.parseLanguages;
 import static org.example.API.ShazamAPI.identifySong;
+import static org.example.Algorithm.findSuggestions;
 import static org.example.swingSetUp.MusicPlayer.*;
 
 public class PlayerPageInstructions {
@@ -74,21 +74,6 @@ public class PlayerPageInstructions {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    public static void addToFavorites(Connection connection, String song) {
-        Long songId = SongTest.findSongIdByName(song);
-        try {
-            String sql = "INSERT INTO users_favourites (user_id, song_id) VALUES (?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, LoginPage.userID);
-            statement.setInt(2, Math.toIntExact(songId));
-            statement.executeUpdate();
-            System.out.println("Added to favorites: Song ID " + songId + " for User ID " + LoginPage.userID);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Failed to add song to favorites.");
         }
     }
 
@@ -171,7 +156,7 @@ public class PlayerPageInstructions {
                     "INNER JOIN songs ON users_favourites.song_id = songs.id " +
                     "WHERE users_favourites.user_id = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, LoginPage.userID);
+            statement.setInt(1, Math.toIntExact(LoginPage.user.getId()));
             ResultSet resultSet = statement.executeQuery();
 
             // Clear existing items in the favorites combo box
@@ -187,6 +172,14 @@ public class PlayerPageInstructions {
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void loadRecomended(Connection connection) {
+        recomendedComboBox.removeAllItems();
+        for (Song i : findSuggestions(connection)) {
+            recomendedComboBox.addItem(i.getName());
+            System.out.println("recomended: " + i.getName());
         }
     }
 

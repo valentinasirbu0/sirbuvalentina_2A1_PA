@@ -2,17 +2,20 @@ package org.example.JPA.model;
 
 import jakarta.persistence.*;
 
+
 @Entity
 @Table(name = "album_song")
+@NamedQuery(name = "AlbumSong.findAlbumsforSong", query = "SELECT a FROM AlbumSong a WHERE a.song.id = :songId")
+@NamedQuery(name = "AlbumSong.findSongsInAlbum", query = "SELECT a FROM AlbumSong a WHERE a.album.id = :albumId")
 public class AlbumSong {
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "album_id")
     private Album album;
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "song_id")
     private Song song;
 

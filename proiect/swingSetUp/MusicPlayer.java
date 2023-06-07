@@ -1,6 +1,10 @@
 package org.example.swingSetUp;
 
 import javazoom.jl.player.Player;
+import org.example.JPA.DAOTests.AlbumDAOTest;
+import org.example.JPA.DAOTests.SongTest;
+import org.example.JPA.DAOTests.UsersFavouritesTest;
+import org.example.JPA.model.Album;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequencer;
@@ -20,6 +24,7 @@ public class MusicPlayer extends JFrame implements ActionListener {
     public static JComboBox<String> midiComboBox;
     public static JComboBox<String> languageComboBox;
     public static JComboBox<String> favouritesComboBox;
+    public static JComboBox<String> recomendedComboBox;
     private JComboBox<?> lastModifiedComboBox = null;
     private JButton playButton;
     private JButton stopButton;
@@ -58,6 +63,9 @@ public class MusicPlayer extends JFrame implements ActionListener {
             favouritesComboBox = new JComboBox<>();
             favouritesComboBox.setPreferredSize(new Dimension(200, 25));
 
+            recomendedComboBox = new JComboBox<>();
+            recomendedComboBox.setPreferredSize(new Dimension(200, 25));
+
             playButton = new JButton("Play");
             playButton.addActionListener(this);
 
@@ -67,7 +75,7 @@ public class MusicPlayer extends JFrame implements ActionListener {
             addToFavoritesButton = new JButton("Add to Favorites"); // New button
             addToFavoritesButton.addActionListener(this);
 
-            JPanel controlPanel = new JPanel(new GridLayout(4, 2));
+            JPanel controlPanel = new JPanel(new GridLayout(5, 2));
             controlPanel.add(new JLabel("Album:"));
             controlPanel.add(albumComboBox);
             controlPanel.add(new JLabel("MP3 File:"));
@@ -76,6 +84,8 @@ public class MusicPlayer extends JFrame implements ActionListener {
             controlPanel.add(languageComboBox);
             controlPanel.add(new JLabel("Favourites:"));
             controlPanel.add(favouritesComboBox);
+            controlPanel.add(new JLabel("Recomended:"));
+            controlPanel.add(recomendedComboBox);
 
             loadLanguageOptions();
 
@@ -101,15 +111,16 @@ public class MusicPlayer extends JFrame implements ActionListener {
             getContentPane().add(lyricsPanel, BorderLayout.CENTER);
             getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
+            setSize(500, 400);
             pack();
             setLocationRelativeTo(null);
 
-            // Load the album names into the album combo box
-            resultSet = statement.executeQuery("SELECT DISTINCT id, title FROM albums ORDER BY id ASC");
-            while (resultSet.next()) {
-                albumComboBox.addItem(resultSet.getString("title"));
+            for(Album a : AlbumDAOTest.getAllAlbums()){
+                albumComboBox.addItem(a.getTitle());
             }
+
             loadFavouritesList();
+            loadRecomended(connection);
 
             // Load the MIDI file names for the first album
             String albumName = (String) albumComboBox.getSelectedItem();
@@ -145,12 +156,13 @@ public class MusicPlayer extends JFrame implements ActionListener {
             // Stop the currently playing MIDI file
             stopMidiFile();
         } else if (source == addToFavoritesButton) {  // Handle the add to favorites button click
-            addToFavorites(connection, (String) midiComboBox.getSelectedItem());
+            UsersFavouritesTest.UsersFavourite(LoginPage.user, SongTest.findSongByName(midiComboBox.getSelectedItem().toString()));
             loadFavouritesList();
+            loadRecomended(connection);
         }
 
         // Update the last modified combo box
-        if (source == favouritesComboBox || source == midiComboBox) {
+        if (source == favouritesComboBox || source == midiComboBox || source == recomendedComboBox) {
             lastModifiedComboBox = (JComboBox<?>) source;
         }
     }

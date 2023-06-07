@@ -1,6 +1,7 @@
 package org.example.JPA.repos;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
@@ -55,5 +56,17 @@ public class AlbumSongRepository extends AbstractRepository<AlbumSong, Long> {
                 .where(criteriaBuilder.equal(albumJoin.get("id"), album.getId()));
 
         return entityManager.createQuery(query).getResultList();
+    }
+
+    public List<AlbumSong> findAlbumsForSong(Song song) {
+        TypedQuery<AlbumSong> query = entityManager.createNamedQuery("AlbumSong.findAlbumsforSong", AlbumSong.class);
+        query.setParameter("songId", song.getId());
+        return query.getResultList();
+    }
+
+    public List<AlbumSong> findSongsInAlbum(Album album) {
+        TypedQuery<AlbumSong> query = entityManager.createNamedQuery("AlbumSong.findSongsInAlbum", AlbumSong.class);
+        query.setParameter("albumId", album.getId());
+        return query.getResultList();
     }
 }

@@ -2,8 +2,6 @@ package org.example.JPA.model;
 
 import jakarta.persistence.*;
 
-import java.nio.file.Path;
-
 @Entity
 @NamedQuery(name = "Song.findByName", query = "SELECT a FROM Song a WHERE a.name LIKE :name")
 @NamedQuery(name = "Song.findAll", query = "SELECT a FROM Song a")

@@ -25,11 +25,6 @@ public class AlbumRepository extends AbstractRepository<Album, Integer> {
         entityManager.getTransaction().commit();
     }
 
-
-    public Album findById(int id) {
-        return entityManager.find(Album.class, id);
-    }
-
     public List<Album> findByTitle(String titlePattern) {
         TypedQuery<Album> query = entityManager.createNamedQuery("Album.findByTitle", Album.class);
         query.setParameter("title", "%" + titlePattern + "%");

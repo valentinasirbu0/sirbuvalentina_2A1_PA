@@ -16,4 +16,21 @@ public class SongTest {
         entityManager.close();
         return song;
     }
+
+    public static Song findSongByName(String name) {
+        EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
+        SongRepository songRepository = new SongRepository(entityManager);
+        Song song = songRepository.findByName(name).get(0);
+        entityManager.close();
+        return song;
+    }
+
+    public static Song findSongById(Integer id) {
+        EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
+        SongRepository songRepository = new SongRepository(entityManager);
+        Song song = songRepository.findById(id);
+        entityManager.close();
+        return song;
+    }
+
 }

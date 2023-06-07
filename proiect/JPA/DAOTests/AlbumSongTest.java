@@ -9,6 +9,7 @@ import org.example.JPA.repos.AlbumRepository;
 import org.example.JPA.repos.AlbumSongRepository;
 import org.example.JPA.repos.SongRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -37,7 +38,7 @@ public class AlbumSongTest {
                     int randomIndex = new Random().nextInt(albums.size());
                     Album randomAlbum = albums.get(randomIndex);
 
-                    AlbumSong albumSong = new AlbumSong(randomAlbum,song);
+                    AlbumSong albumSong = new AlbumSong(randomAlbum, song);
                     albumSongRepository.create(albumSong);
                 }
             }
@@ -45,5 +46,29 @@ public class AlbumSongTest {
             // Close the entityManager after all albums have been processed
             entityManager.close();
         }
+    }
+
+    public static List<Album> getAlbumsForSong(Song song) {
+        EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
+        AlbumSongRepository albumSongRepository = new AlbumSongRepository(entityManager);
+        List<AlbumSong> result = albumSongRepository.findAlbumsForSong(song);
+        List<Album> albums = new ArrayList<>();
+        for (AlbumSong a : result) {
+            albums.add(a.getAlbum());
+        }
+        entityManager.close();
+        return albums;
+    }
+
+    public static List<Song> getSongsInAlbum(Album album) {
+        EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
+        AlbumSongRepository albumSongRepository = new AlbumSongRepository(entityManager);
+        List<AlbumSong> result = albumSongRepository.findSongsInAlbum(album);
+        List<Song> songs = new ArrayList<>();
+        for (AlbumSong a : result) {
+            songs.add(a.getSong());
+        }
+        entityManager.close();
+        return songs;
     }
 }
