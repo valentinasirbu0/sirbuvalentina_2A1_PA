@@ -1,0 +1,73 @@
+CREATE TABLE artists (
+    id SERIAL NOT NULL,
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+	UNIQUE(id)
+);
+
+CREATE TABLE genres (
+    id SERIAL NOT NULL,
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+	UNIQUE(id)
+);
+
+CREATE TABLE albums (
+    id SERIAL NOT NULL,
+    year VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    artist_id INTEGER REFERENCES artists(id),
+    UNIQUE(id),
+    PRIMARY KEY (title)
+);
+
+CREATE TABLE album_artist (
+    album_id INTEGER NOT NULL REFERENCES albums(id),
+    artist_id INTEGER NOT NULL REFERENCES artists(id),
+    PRIMARY KEY (album_id, artist_id)
+);
+
+CREATE TABLE album_genre (
+    album_id INTEGER NOT NULL REFERENCES albums(id),
+    genre_id INTEGER NOT NULL REFERENCES genres(id),
+    PRIMARY KEY (album_id, genre_id)
+);
+
+CREATE TABLE songs (
+    id SERIAL NOT NULL,
+    path VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+    UNIQUE(id),
+    file_data BYTEA NOT NULL
+);
+
+CREATE TABLE album_song (
+    album_id INTEGER NOT NULL REFERENCES albums(id),
+    song_id INTEGER NOT NULL REFERENCES songs(id),
+    PRIMARY KEY (album_id, song_id)
+); 
+
+CREATE TABLE users (
+    id SERIAL NOT NULL,
+    username VARCHAR(255) NOT NULL ,
+    passwd VARCHAR(255) NOT NULL ,
+    PRIMARY KEY (username),
+	UNIQUE(id)
+); 
+
+CREATE TABLE users_favourites (
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    song_id INTEGER NOT NULL REFERENCES songs(id),
+    PRIMARY KEY (user_id,song_id)
+);
+
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+delete from songs;
+delete from album_genre;
+delete from album_artist;
+delete from album_song;
+delete from albums;
+delete from artists;
+delete from genres;
+
+

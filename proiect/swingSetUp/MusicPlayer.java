@@ -1,16 +1,6 @@
 package org.example.swingSetUp;
 
-import jakarta.persistence.EntityManager;
-import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
-import org.example.API.GoogleTranslateAPI;
-import org.example.API.LyricsExtractor;
-import org.example.JPA.JpaDAOFactory;
-import org.example.JPA.model.Album;
-import org.example.JPA.model.Song;
-import org.example.JPA.repos.AlbumRepository;
-import org.example.JPA.repos.AlbumSongRepository;
-import org.example.JPA.repos.SongRepository;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequencer;
@@ -18,42 +8,34 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.List;
 
-import static org.example.API.GoogleTranslateAPI.filePath;
-import static org.example.API.GoogleTranslateAPI.parseLanguages;
-import static org.example.API.ShazamAPI.identifySong;
+import static org.example.swingSetUp.PlayerPageInstructions.*;
 
 public class MusicPlayer extends JFrame implements ActionListener {
 
-    private JComboBox<String> albumComboBox;
-    private JComboBox<String> midiComboBox;
-    private JComboBox<String> languageComboBox;
+    public static JComboBox<String> albumComboBox;
+    public static JComboBox<String> midiComboBox;
+    public static JComboBox<String> languageComboBox;
+    public static JComboBox<String> favouritesComboBox;
+    private JComboBox<?> lastModifiedComboBox = null;
     private JButton playButton;
     private JButton stopButton;
+    private JButton addToFavoritesButton;  // New button for adding to favorites
     private Sequencer sequencer;
-    private Connection connection;
     private Statement statement;
     private ResultSet resultSet;
-    private Player player;
-    private JTextArea lyricsTextArea;
+    public static Player player;
+    public static JTextArea lyricsTextArea;
+    public static Connection connection;
 
-
-    public MusicPlayer() {
+    public MusicPlayer(Connection connection) {
         super("Music Player");
+        this.connection = connection;
 
         try {
-            // Connect to the database
-            Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/lab8java", "postgres", "valea");
             statement = connection.createStatement();
 
             // Create GUI components
@@ -73,19 +55,27 @@ public class MusicPlayer extends JFrame implements ActionListener {
             languageComboBox = new JComboBox<>();
             languageComboBox.setPreferredSize(new Dimension(200, 25));
 
+            favouritesComboBox = new JComboBox<>();
+            favouritesComboBox.setPreferredSize(new Dimension(200, 25));
+
             playButton = new JButton("Play");
             playButton.addActionListener(this);
 
             stopButton = new JButton("Stop");
             stopButton.addActionListener(this);
 
-            JPanel controlPanel = new JPanel(new GridLayout(3, 2));
+            addToFavoritesButton = new JButton("Add to Favorites"); // New button
+            addToFavoritesButton.addActionListener(this);
+
+            JPanel controlPanel = new JPanel(new GridLayout(4, 2));
             controlPanel.add(new JLabel("Album:"));
             controlPanel.add(albumComboBox);
             controlPanel.add(new JLabel("MP3 File:"));
             controlPanel.add(midiComboBox);
             controlPanel.add(new JLabel("Language:"));
             controlPanel.add(languageComboBox);
+            controlPanel.add(new JLabel("Favourites:"));
+            controlPanel.add(favouritesComboBox);
 
             loadLanguageOptions();
 
@@ -105,6 +95,7 @@ public class MusicPlayer extends JFrame implements ActionListener {
             JPanel buttonPanel = new JPanel();
             buttonPanel.add(playButton);
             buttonPanel.add(stopButton);
+            buttonPanel.add(addToFavoritesButton);  // Add the new button
 
             // Add components to JFrame
             getContentPane().add(lyricsPanel, BorderLayout.CENTER);
@@ -118,6 +109,7 @@ public class MusicPlayer extends JFrame implements ActionListener {
             while (resultSet.next()) {
                 albumComboBox.addItem(resultSet.getString("title"));
             }
+            loadFavouritesList();
 
             // Load the MIDI file names for the first album
             String albumName = (String) albumComboBox.getSelectedItem();
@@ -132,130 +124,6 @@ public class MusicPlayer extends JFrame implements ActionListener {
         }
     }
 
-    private void loadLanguageOptions() {
-        // Read the JSON file
-        String jsonContent = null;
-        try {
-            jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        List<String> languages = parseLanguages(jsonContent);
-        for (String s : languages) {
-            languageComboBox.addItem(s);
-        }
-    }
-
-
-    private void loadMidiFileNames(String albumName) {
-        try {
-            midiComboBox.removeAllItems();
-            if (albumName != null) {
-                EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
-                AlbumRepository albumRepository = new AlbumRepository(entityManager);
-
-                // Find the album based on the albumName
-                List<Album> albums = albumRepository.findByTitle(albumName);
-                if (!albums.isEmpty()) {
-                    Album album = albums.get(0);
-
-                    // Retrieve the song names associated with the album
-                    AlbumSongRepository albumSongRepository = new AlbumSongRepository(entityManager);
-                    List<String> songNames = albumSongRepository.findSongNamesByAlbum(album);
-
-                    // Add the song names to the midiComboBox
-                    for (String songName : songNames) {
-                        midiComboBox.addItem(songName);
-                    }
-                } else {
-                    System.out.println("No album found with the title: " + albumName);
-                }
-
-                entityManager.close();
-            } else {
-                System.out.println("Album name is null.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void playMidiFile(String midiName) {
-        try {
-            // Load the MP3 file from the database and play it
-            String albumName = (String) albumComboBox.getSelectedItem();
-            String languageName = (String) languageComboBox.getSelectedItem();
-            EntityManager entityManager = JpaDAOFactory.getEntityManagerFactory().createEntityManager();
-            SongRepository songRepository = new SongRepository(entityManager);
-
-            // Find the song based on the midiName
-            List<Song> songs = songRepository.findByName(midiName);
-            if (!songs.isEmpty()) {
-                Song song = songs.get(0);
-
-                // Play the MP3 data
-                byte[] mp3Data = song.getFileData();
-
-
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////
-                // Identify the song
-                identifySong(song.getPath());
-                String lyrics = LyricsExtractor.lyrics;
-                String translated = GoogleTranslateAPI.translate(lyrics, languageName);
-
-                Thread lyricsThread = new Thread(() -> {
-                    // Display the lyrics in the lyricsTextArea
-                    //System.out.println(lyrics);
-                    //lyricsTextArea.setText(song.getName());
-                    if (translated != null) {
-                        lyricsTextArea.setText(translated);
-                    } else {
-                        lyricsTextArea.setText(lyrics);
-                    }
-
-                });
-                lyricsThread.start();
-
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-                // Create an input stream from the MP3 data
-                ByteArrayInputStream bis = new ByteArrayInputStream(mp3Data);
-
-                // Create a Player instance
-                player = new Player(bis);
-
-                // Start playback in a separate thread
-                Thread playerThread = new Thread(() -> {
-                    try {
-                        player.play();
-                    } catch (JavaLayerException e) {
-                        e.printStackTrace();
-                    }
-                });
-                playerThread.start();
-            } else {
-                System.out.println("No song found with the name: " + midiName);
-            }
-
-            entityManager.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void stopMidiFile() {
-        try {
-            if (player != null) {
-                player.close();
-                player = null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -264,12 +132,26 @@ public class MusicPlayer extends JFrame implements ActionListener {
             String albumName = (String) albumComboBox.getSelectedItem();
             loadMidiFileNames(albumName);
         } else if (source == playButton) {
-            // Play the selected MIDI file
-            String midiName = (String) midiComboBox.getSelectedItem();
-            playMidiFile(midiName);
+            // Determine the source of the last modified field (favorites or MIDI files)
+            JComboBox<?> sourceComboBox = (lastModifiedComboBox != null) ? lastModifiedComboBox : midiComboBox;
+
+            String selectedSong = (String) sourceComboBox.getSelectedItem();
+            if (selectedSong != null) {
+                playMidiFile(selectedSong);
+            } else {
+                System.out.println("No song selected to play.");
+            }
         } else if (source == stopButton) {
             // Stop the currently playing MIDI file
             stopMidiFile();
+        } else if (source == addToFavoritesButton) {  // Handle the add to favorites button click
+            addToFavorites(connection, (String) midiComboBox.getSelectedItem());
+            loadFavouritesList();
+        }
+
+        // Update the last modified combo box
+        if (source == favouritesComboBox || source == midiComboBox) {
+            lastModifiedComboBox = (JComboBox<?>) source;
         }
     }
 }
