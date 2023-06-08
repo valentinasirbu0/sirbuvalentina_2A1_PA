@@ -6,5 +6,6 @@ Spotify API for the artists,genres,songs and albums
 Shazam API for song detection and lyrics extraction
 Google Translate API for translating the lyrics of the song
 Java Swing for interface
+Threading
 A simple login/register module that permits genreation a list of favourite songs
 A simple algorithm for suggesting songs based on favourite list of every user
