@@ -1,0 +1,8 @@
+javac -cp src/main/java src/main/java/org/example/ClassAnalyzer.java src/main/java/org/example/Calculator.java
+java -cp src/main/java org.example.Calculator
+Division test passed!
+Addition test passed!
+javac src\main\java\org\example\ClassAnalyzer.java
+java -cp "C:\Users\Valea\Desktop\java\_5\out\production\_5;C:\Users\Valea\Desktop\java\homework10\_12\src\main\java"org.example.ClassAnalyzer BestRouteProblem
+Error: Could not find or load main class BestRouteProblem
+Caused by: java.lang.ClassNotFoundException: BestRouteProblem
